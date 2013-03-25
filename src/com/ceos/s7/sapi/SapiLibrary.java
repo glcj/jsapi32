@@ -1083,7 +1083,7 @@ public interface SapiLibrary extends Library {
 	 * Original signature : <code>int32 s7_get_read_cnf(void*, ord16*, void*)</code><br>
 	 * <i>native declaration : line 660</i>
 	 */
-	int s7_get_read_cnf(Pointer od_ptr, ShortBuffer var_length_ptr, Pointer value_ptr);
+	int s7_get_read_cnf(Pointer od_ptr, ShortBuffer var_length_ptr, Pointer s7_bsend_req);
 
 /**
  * With this call, the user program can query all the configured VFDs of a 
@@ -1901,13 +1901,6 @@ public interface SapiLibrary extends Library {
 	 * <i>native declaration : line 696</i>
 	 */
 	int s7_read_long_req(NativeLong cp_descr, short cref, short orderid, S7_READ_PARA read_para_ptr);
-	/**
-	 * Original signature : <code>int32 s7_receive(ord32, ord16*, ord16*)</code><br>
-	 * <i>native declaration : line 699</i><br>
-	 * @deprecated use the safer methods {@link #s7_receive(com.sun.jna.NativeLong, java.nio.ShortBuffer, java.nio.ShortBuffer)} and {@link #s7_receive(com.sun.jna.NativeLong, com.sun.jna.ptr.ShortByReference, com.sun.jna.ptr.ShortByReference)} instead
-	 */
-	@Deprecated 
-	int s7_receive(NativeLong cp_descr, ShortByReference cref_ptr, ShortByReference orderid_ptr);
         
 /**
  * The receive function of the S7 library has the central task of analyzing
@@ -1941,6 +1934,9 @@ public interface SapiLibrary extends Library {
  * @return This identifies the type of service of the received response
  * (for example 'S7_READ_CNF' when a variable was read).
  */
+	@Deprecated 
+	int s7_receive(NativeLong cp_descr, ShortByReference cref_ptr, ShortByReference orderid_ptr);        
+        
 	int s7_receive(NativeLong cp_descr, ShortBuffer cref_ptr, ShortBuffer orderid_ptr);
         
 	/**
@@ -2084,6 +2080,7 @@ public interface SapiLibrary extends Library {
  *
   */
 	int s7_write_req(NativeLong cp_descr, short cref, short orderid, S7_WRITE_PARA write_para_ptr, Pointer od_ptr);
+	
         
 	/**
 	 * Original signature : <code>int32 s7_write_long_req(ord32, ord16, ord16, S7_WRITE_PARA_LONG*, void*)</code><br>
@@ -2111,13 +2108,36 @@ public interface SapiLibrary extends Library {
 	 * <i>native declaration : line 729</i>
 	 */
 	void s7_write_trace_buffer(String filename);
-	/**
-	 * Original signature : <code>int32 s7_bsend_req(ord32, ord16, ord16, ord32, void*, ord32)</code><br>
-	 * <i>native declaration : line 731</i>
-	 */
-        
-        
-	int s7_bsend_req(NativeLong cp_descr, short cref, short orderid, NativeLong r_id, Pointer buffer_ptr, NativeLong buffer_len);
+
+/**
+ * With the s7_bsend_req call, a client application can send up to 65534
+bytes of data to a remote station.
+ * @param cp_descr Handle as return value of the 's7_init()' call.
+ * @param cref Reference of the S7 connection on which the job
+will be sent.
+ * @param orderid Job identifier to identify the job to be sent and
+the corresponding confirmation.
+ * @param r_id Data are only sent to the partner on this
+connection without problems when the address
+parameter r_id is unique for the connection and
+matches the remote R_ID of the BRCV .
+Range of values (hexadecimal): 0 to FFFF FFFF
+ * @param buffer_ptr Pointer to the address area to be sent.
+ * @param buffer_len Explicitly specified length of the net data in
+bytes; Range of values (hexadecimal): 1 to FFFE
+ * @return <b>S7_OK</b> The function was processed without errors.<br>
+ * <b>S7_ERR_RETRY</b> This value indicates that an error occurred executing
+ * the requested service. This is a temporary problem such as a brief memory
+ * shortage. The call can be repeated without modifying the transferred
+ * parameters.<br>
+ * <b>S7_ERR</b> This value also indicates an error in the execution of the
+ * requested service. In this case, however, the error does not allow the
+ * service to be repeated. Here, steps must be taken to eliminate the error
+ * such as assigning new parameters for the call.<br>
+ */
+    int s7_bsend_req(NativeLong cp_descr, short cref, short orderid, 
+                     NativeLong r_id, Pointer buffer_ptr,
+                     NativeLong buffer_len);
         
 /**
  * The s7_get_bsend_cnf receives the result of the BSEND job.<br>

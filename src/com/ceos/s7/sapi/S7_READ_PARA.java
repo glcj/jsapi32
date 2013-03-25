@@ -1,4 +1,5 @@
 package com.ceos.s7.sapi;
+import com.sun.jna.Native;
 import com.sun.jna.Structure;
 import java.util.Arrays;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
  */
 public class S7_READ_PARA extends Structure {
 	/// C type : ord16
-	public short access;
+	public short access = (short) SapiLibrary.S7_ACCESS_SYMB_ADDRESS;
 	/// C type : char[32 + 2]
 	public byte[] var_name = new byte[32 + 2];
 	/// C type : ord16
@@ -26,7 +27,7 @@ public class S7_READ_PARA extends Structure {
 		initFieldOrder();
 	}
 	protected void initFieldOrder() {
-		setFieldOrder(new String[]{"access", "var_name", "index", "subindex", "address_len", "address"});
+		//setFieldOrder(new String[]{"access", "var_name", "index", "subindex", "address_len", "address"});
 	}
 	/**
 	 * @param access C type : ord16<br>
@@ -36,20 +37,33 @@ public class S7_READ_PARA extends Structure {
 	 * @param address_len C type : ord16<br>
 	 * @param address C type : ord8[32]
 	 */
-	public S7_READ_PARA(short access, byte var_name[], short index, short subindex, short address_len, byte address[]) {
+	public S7_READ_PARA(short access, String var_name, short index, short subindex, short address_len, byte address[]) {
 		super();
 		this.access = access;
+                /*
 		if (var_name.length != this.var_name.length) 
 			throw new IllegalArgumentException("Wrong array size !");
 		this.var_name = var_name;
+                */
+                System.arraycopy(Native.toByteArray(var_name), 0, this.var_name, 0, Native.toByteArray(var_name).length);
+                
 		this.index = index;
 		this.subindex = subindex;
-		this.address_len = address_len;
+		this.address_len = (short) Native.toByteArray(var_name).length;//address_len;
+                /*
 		if (address.length != this.address.length) 
 			throw new IllegalArgumentException("Wrong array size !");
+                        */
 		this.address = address;
 		initFieldOrder();
 	}
+        
+	public S7_READ_PARA(String var_name) {
+		super();
+                System.arraycopy(Native.toByteArray(var_name), 0, this.var_name, 0, Native.toByteArray(var_name).length);
+	}        
+        
+        
 	public static class ByReference extends S7_READ_PARA implements Structure.ByReference {
 		
 	};
