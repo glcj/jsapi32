@@ -1,0 +1,1 @@
+SIMATIC S7 system components communicate with each other using the S7 ommunications protocol. To allow programming device/PC application programs access to SIMATIC S7 system components, the SAPI-S7 programming interface was developed. With its Java programming interface, you have flexible and simple access to the data of SIMATIC S7 system components.
